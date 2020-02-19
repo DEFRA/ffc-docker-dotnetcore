@@ -6,10 +6,8 @@ Four parent images are created from this repository:
 
 - `ffc-dotnetcore-runtime`
 - `ffc-dotnetcore-sdk`
-- `ffc-dotnetcore-runtime-development`
-- `ffc-dotnetcore-sdk-development`
 
-It is recommended to use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build) to produce production and development images, each extending the appropriate parent, from a single Dockerfile.
+It is recommended that services use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build) to produce production and development images, each extending the appropriate parent, from a single Dockerfile.
 
 [Example](./examples) Dockerfiles are provided to show how parent images can be extended for different types of services. These should be a good starting point for building .Net Core services conforming to FFC standards.
 
