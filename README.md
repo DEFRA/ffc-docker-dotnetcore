@@ -9,13 +9,7 @@ Four parent images are created from this repository:
 
 It is recommended that services use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build) to produce production and development images, each extending the appropriate parent, from a single Dockerfile.
 
-[Example](./examples) Dockerfiles are provided to show how parent images can be extended for different types of services. These should be a good starting point for building .Net Core services conforming to FFC standards.
-
-## Example files
-
-[`Dockerfile.web`](./examples/Dockerfile.web) - This is an example web project, that requires a build step to create some static files that are used by the web front end.
-
-[`Dockerfile.service`](./examples/Dockerfile.service) - This is an example project that doesn't expose any external ports (a message based service). There is also no build step in this dockerfile.
+An [example](./example) is provided to show how parent images can be extended in a Dockerfile for a service. This should be a good starting point for building .Net Core services conforming to FFC standards.
 
 ## License
 
