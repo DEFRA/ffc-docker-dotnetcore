@@ -1,4 +1,4 @@
-# FFC Docker dotnetcore
+# FFC Docker .NET Core
 
 This repository contains .Net Core parent Docker image source code for the Future Farming and Countryside programme.
 
