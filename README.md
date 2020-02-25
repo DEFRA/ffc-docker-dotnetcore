@@ -2,7 +2,7 @@
 
 This repository contains .Net Core parent Docker image source code for the Future Farming and Countryside programme.
 
-Four parent images are created from this repository:
+Two parent images are created from this repository:
 
 - `ffc-dotnetcore-runtime`
 - `ffc-dotnetcore-sdk`
