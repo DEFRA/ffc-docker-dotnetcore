@@ -14,7 +14,3 @@ RUN addgroup -g 1000 dotnet \
 # Default to the dotnet user and run from their home folder
 USER dotnet
 WORKDIR /home/dotnet
-
-# Default to running the base dotnet command. Specify subcommands using
-# `CMD` in child Dockerfiles or `command` in docker-compose.yaml.
-ENTRYPOINT [ "dotnet" ]
