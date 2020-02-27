@@ -29,23 +29,23 @@ node {
       (pr, containerTag, mergedPrNo) = defraUtils.getVariables(repoName, imageTag)
       defraUtils.setGithubStatusPending()
 
-      imageRepository = "$registry/$imageName"
-      imageRepositoryDevelopment = "$registry/$imageNameDevelopment"
+      imageRepositoryRuntime = "$registry/$imageName"
+      imageRepositorySDK = "$registry/$imageNameDevelopment"
       imageTag = imageTag + (pr ? "-pr$pr" : "")
     }
 
     stage('Build') {
-      sh "docker build --no-cache --tag $imageRepository:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
-      --build-arg VERSION=$dockerfileVersion --target production . "
+      sh "docker build --no-cache --tag $imageRepositoryRuntime:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
+      --build-arg VERSION=$dockerfileVersion ./runtime"
 
-      sh "docker build --no-cache --tag $imageRepositoryDevelopment:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
-      --build-arg VERSION=$dockerfileVersion --target development . "
+      sh "docker build --no-cache --tag $imageRepositorySDK:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
+      --build-arg VERSION=$dockerfileVersion ./sdk"
     }
 
     stage('Push') {
       docker.withRegistry("https://$registry", regCredsId) {
-        sh "docker push $imageRepository:$imageTag"
-        sh "docker push $imageRepositoryDevelopment:$imageTag"
+        sh "docker push $imageRepositoryRuntime:$imageTag"
+        sh "docker push $imageRepositorySDK:$imageTag"
       }
     }
 
