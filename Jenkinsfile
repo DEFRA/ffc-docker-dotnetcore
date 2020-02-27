@@ -8,7 +8,7 @@ def dotNetVersion = '12.16.0'
 
 // Constants
 def awsRegion = 'eu-west-2'
-def imageName = 'ffc-dotnetcore'
+def imageNameProduction = 'ffc-dotnetcore'
 def imageNameDevelopment = 'ffc-dotnetcore-development'
 def regCredsId = 'ecr:eu-west-2:ecr-user'
 def registry = '562955126301.dkr.ecr.eu-west-2.amazonaws.com'
@@ -29,23 +29,23 @@ node {
       (pr, containerTag, mergedPrNo) = defraUtils.getVariables(repoName, imageTag)
       defraUtils.setGithubStatusPending()
 
-      imageRepositoryRuntime = "$registry/$imageName"
-      imageRepositorySDK = "$registry/$imageNameDevelopment"
+      imageRepositoryProduction = "$registry/$imageNameProduction"
+      imageRepositoryDevelopment = "$registry/$imageNameDevelopment"
       imageTag = imageTag + (pr ? "-pr$pr" : "")
     }
 
     stage('Build') {
-      sh "docker build --no-cache --tag $imageRepositoryRuntime:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
+      sh "docker build --no-cache --tag $imageRepositoryProduction:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
       --build-arg VERSION=$dockerfileVersion ./runtime"
 
-      sh "docker build --no-cache --tag $imageRepositorySDK:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
+      sh "docker build --no-cache --tag $imageRepositoryDevelopment:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
       --build-arg VERSION=$dockerfileVersion ./sdk"
     }
 
     stage('Push') {
       docker.withRegistry("https://$registry", regCredsId) {
-        sh "docker push $imageRepositoryRuntime:$imageTag"
-        sh "docker push $imageRepositorySDK:$imageTag"
+        sh "docker push $imageRepositoryProduction:$imageTag"
+        sh "docker push $imageRepositoryDevelopment:$imageTag"
       }
     }
 
@@ -58,7 +58,7 @@ node {
           aws --region $awsRegion \
             ecr batch-delete-image \
             --image-ids imageTag=$prImageTag \
-            --repository-name $imageName
+            --repository-name $imageNameProduction
         """
         sh """
           aws --region $awsRegion \
