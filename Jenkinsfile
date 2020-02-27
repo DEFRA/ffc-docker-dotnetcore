@@ -10,7 +10,6 @@ def dotNetVersion = '12.16.0'
 def awsRegion = 'eu-west-2'
 def imageNameProduction = 'ffc-dotnetcore'
 def imageNameDevelopment = 'ffc-dotnetcore-development'
-def regCredsId = 'ecr:eu-west-2:ecr-user'
 def registry = '562955126301.dkr.ecr.eu-west-2.amazonaws.com'
 def repoName = 'ffc-docker-dotnetcore'
 
@@ -43,7 +42,7 @@ node {
     }
 
     stage('Push') {
-      docker.withRegistry("https://$registry", regCredsId) {
+      docker.withRegistry("https://$registry") {
         sh "docker push $imageRepositoryProduction:$imageTag"
         sh "docker push $imageRepositoryDevelopment:$imageTag"
       }
