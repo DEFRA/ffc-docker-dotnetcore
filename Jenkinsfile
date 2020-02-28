@@ -31,6 +31,10 @@ node {
 
       imageRepositoryDevelopment = "$DOCKER_REGISTRY/$imageNameDevelopment"
       imageRepositoryProduction = "$DOCKER_REGISTRY/$imageNameProduction"
+
+      // One-off create ECR repositories
+      sh "aws ecr create-repository --repository-name=$imageNameDevelopment"
+      sh "aws ecr create-repository --repository-name=$imageNameProduction"
     }
 
     stage('Build') {
