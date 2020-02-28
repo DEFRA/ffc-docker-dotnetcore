@@ -10,7 +10,6 @@ def dotNetVersion = '12.16.0'
 def awsRegion = 'eu-west-2'
 def imageNameProduction = 'ffc-dotnetcore'
 def imageNameDevelopment = 'ffc-dotnetcore-development'
-def registry = '562955126301.dkr.ecr.eu-west-2.amazonaws.com'
 def repoName = 'ffc-docker-dotnetcore'
 
 // Variables
@@ -30,8 +29,8 @@ node {
       (pr, imageTag, mergedPrImageTag) = defraUtils.getVariables(repoName, versionTag)
       defraUtils.setGithubStatusPending()
 
-      imageRepositoryDevelopment = "$registry/$imageNameDevelopment"
-      imageRepositoryProduction = "$registry/$imageNameProduction"
+      imageRepositoryDevelopment = "$DOCKER_REGISTRY/$imageNameDevelopment"
+      imageRepositoryProduction = "$DOCKER_REGISTRY/$imageNameProduction"
     }
 
     stage('Build') {
@@ -43,7 +42,7 @@ node {
     }
 
     stage('Push') {
-      docker.withRegistry("https://$registry") {
+      docker.withRegistry("https://$DOCKER_REGISTRY", DOCKER_REGISTRY_CREDENTIALS_ID) {
         sh "docker push $imageRepositoryDevelopment:$imageTag"
         sh "docker push $imageRepositoryProduction:$imageTag"
       }
