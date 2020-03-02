@@ -24,6 +24,17 @@ node {
   checkout scm
 
   try {
+    stage('One-off commands') {
+      // Delete ECR repositories created in wrong AWS account
+      imageRepositoryDevelopment = "$DOCKER_REGISTRY/$imageNameDevelopment"
+      imageRepositoryProduction = "$DOCKER_REGISTRY/$imageNameProduction"
+      sh "aws ecr delete-repository --repository-name=$imageRepositoryDevelopment"
+      sh "aws ecr delete-repository --repository-name=$imageRepositoryProduction"
+      sh "aws ecr delete-repository --repository-name=$imageNameDevelopment"
+      sh "aws ecr delete-repository --repository-name=$imageNameProduction"
+      sh "exit 1"
+    }
+
     stage('Set variables') {
       versionTag = "${dockerfileVersion}-dotnet${dotNetVersion}"
       (pr, imageTag, mergedPrImageTag) = defraUtils.getVariables(repoName, versionTag)
@@ -31,10 +42,6 @@ node {
 
       imageRepositoryDevelopment = "$DOCKER_REGISTRY/$imageNameDevelopment"
       imageRepositoryProduction = "$DOCKER_REGISTRY/$imageNameProduction"
-
-      // One-off create ECR repositories
-      sh "aws ecr create-repository --repository-name=$imageNameDevelopment"
-      sh "aws ecr create-repository --repository-name=$imageNameProduction"
     }
 
     stage('Build') {
