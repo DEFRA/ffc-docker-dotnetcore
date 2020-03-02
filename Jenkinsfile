@@ -25,15 +25,6 @@ node {
   checkout scm
 
   try {
-    stage('One-off commands') {
-      // Create ECR repositories
-      withAWS(credentials: awsCredential, region: 'eu-west-2') {
-        sh "aws ecr create-repository --repository-name=$imageNameDevelopment"
-        sh "aws ecr create-repository --repository-name=$imageNameProduction"
-      }
-      sh "exit 1"
-    }
-
     stage('Set variables') {
       versionTag = "${dockerfileVersion}-dotnet${dotNetVersion}"
       (pr, imageTag, mergedPrImageTag) = defraUtils.getVariables(repoName, versionTag)
