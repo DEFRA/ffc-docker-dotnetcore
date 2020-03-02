@@ -26,7 +26,7 @@ node {
   try {
     stage('One-off commands') {
       // Create ECR repositories
-      withAWS(credentials: 'DEVFFCManageECRRole', region: 'eu-west-2') {
+      withAWS(credentials: 'devffc-user', region: 'eu-west-2') {
         sh "aws ecr create-repository --repository-name=$imageNameDevelopment"
         sh "aws ecr create-repository --repository-name=$imageNameProduction"
       }
@@ -61,7 +61,7 @@ node {
       // Remove PR image tags from registry after merge to master.
       // Leave digests as these will be reused by master build or cleaned up automatically.
       stage('Clean registry') {
-        withAWS(credentials: 'DEVFFCManageECRRole', region: 'eu-west-2') {
+        withAWS(credentials: 'devffc-user', region: 'eu-west-2') {
           sh """
             aws --region $awsRegion \
               ecr batch-delete-image \
