@@ -7,6 +7,7 @@ def dockerfileVersion = '1.0.0'
 def dotNetVersion = '12.16.0'
 
 // Constants
+def awsCredential = 'devffc-user'
 def awsRegion = 'eu-west-2'
 def imageNameProduction = 'ffc-dotnetcore'
 def imageNameDevelopment = 'ffc-dotnetcore-development'
@@ -26,7 +27,7 @@ node {
   try {
     stage('One-off commands') {
       // Create ECR repositories
-      withAWS(credentials: 'devffc-user', region: 'eu-west-2') {
+      withAWS(credentials: awsCredential, region: 'eu-west-2') {
         sh "aws ecr create-repository --repository-name=$imageNameDevelopment"
         sh "aws ecr create-repository --repository-name=$imageNameProduction"
       }
@@ -61,7 +62,7 @@ node {
       // Remove PR image tags from registry after merge to master.
       // Leave digests as these will be reused by master build or cleaned up automatically.
       stage('Clean registry') {
-        withAWS(credentials: 'devffc-user', region: 'eu-west-2') {
+        withAWS(credentials: awsCredential, region: 'eu-west-2') {
           sh """
             aws --region $awsRegion \
               ecr batch-delete-image \
