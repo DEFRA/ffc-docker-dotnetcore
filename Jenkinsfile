@@ -25,13 +25,11 @@ node {
 
   try {
     stage('One-off commands') {
-      // Delete ECR repositories created in wrong AWS account
-      imageRepositoryDevelopment = "$DOCKER_REGISTRY/$imageNameDevelopment"
-      imageRepositoryProduction = "$DOCKER_REGISTRY/$imageNameProduction"
-      sh "aws ecr delete-repository --repository-name=$imageRepositoryDevelopment"
-      sh "aws ecr delete-repository --repository-name=$imageRepositoryProduction"
-      sh "aws ecr delete-repository --repository-name=$imageNameDevelopment"
-      sh "aws ecr delete-repository --repository-name=$imageNameProduction"
+      // Create ECR repositories
+      withAWS(credentials: 'DEVFFCManageECRRole', region: 'eu-west-2') {
+        sh "aws ecr create-repository --repository-name=$imageNameDevelopment"
+        sh "aws ecr create-repository --repository-name=$imageNameProduction"
+      }
       sh "exit 1"
     }
 
@@ -63,18 +61,20 @@ node {
       // Remove PR image tags from registry after merge to master.
       // Leave digests as these will be reused by master build or cleaned up automatically.
       stage('Clean registry') {
-        sh """
-          aws --region $awsRegion \
-            ecr batch-delete-image \
-            --image-ids imageTag=$mergedPrImageTag \
-            --repository-name $imageNameDevelopment
-        """
-        sh """
-          aws --region $awsRegion \
-            ecr batch-delete-image \
-            --image-ids imageTag=$mergedPrImageTag \
-            --repository-name $imageNameProduction
-        """
+        withAWS(credentials: 'DEVFFCManageECRRole', region: 'eu-west-2') {
+          sh """
+            aws --region $awsRegion \
+              ecr batch-delete-image \
+              --image-ids imageTag=$mergedPrImageTag \
+              --repository-name $imageNameDevelopment
+          """
+          sh """
+            aws --region $awsRegion \
+              ecr batch-delete-image \
+              --image-ids imageTag=$mergedPrImageTag \
+              --repository-name $imageNameProduction
+          """
+        }
       }
       stage('Tag release in github') {
         withCredentials([
