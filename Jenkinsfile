@@ -70,7 +70,7 @@ node {
       }
       stage('Tag release in github') {
         withCredentials([
-          string(credentialsId: 'github_ffc_platform_repo', variable: 'gitToken')
+          string(credentialsId: 'github_ffc_platform_repo', variable: 'github-auth-token')
         ]) {
           defraUtils.triggerRelease(imageTag, repoName, imageTag, gitToken)
         }
