@@ -3,7 +3,7 @@ import uk.gov.defra.ffc.DefraUtils
 def defraUtils = new DefraUtils()
 
 // Versioning - edit these variables to set version information
-def dockerfileVersion = '1.0.0'
+def dockerfileVersion = '1.0.1'
 def dotNetVersion = '12.16.0'
 
 // Constants
