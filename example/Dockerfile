@@ -3,13 +3,13 @@ ARG PARENT_VERSION=1.0.0
 ARG PARENT_REGISTRY=562955126301.dkr.ecr.eu-west-2.amazonaws.com
 
 # Development stage, used the build the app and provide testing tools
-FROM $PARENT_REGISTRY/ffc-dotnetcore-sdk:$PARENT_VERSION AS development
+FROM $PARENT_REGISTRY/ffc-dotnetcore-development:$PARENT_VERSION AS development
 
 ARG PARENT_VERSION
 ARG PARENT_REGISTRY
 
 # Label the development image with the parent image it extends
-LABEL uk.gov.defra.ffc.parent-image=${PARENT_REGISTRY}/ffc-dotnetcore-sdk:${PARENT_VERSION}
+LABEL uk.gov.defra.ffc.parent-image=${PARENT_REGISTRY}/ffc-dotnetcore-development:${PARENT_VERSION}
 
 # Create directories for app and test files to be copied into
 RUN mkdir -p /home/dotnet/exampleService/ /home/dotnet/exampleService.Tests/
@@ -39,7 +39,7 @@ EXPOSE ${PORT}
 CMD dotnet watch --project ./exampleService run --urls http://*:${PORT}
 
 # Production stage
-FROM $PARENT_REGISTRY/ffc-dotnetcore-runtime:$PARENT_VERSION AS production
+FROM $PARENT_REGISTRY/ffc-dotnetcore:$PARENT_VERSION AS production
 
 ARG PARENT_VERSION
 ARG PARENT_REGISTRY

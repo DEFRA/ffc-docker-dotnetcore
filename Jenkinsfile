@@ -35,11 +35,19 @@ node {
     }
 
     stage('Build') {
-      sh "docker build --no-cache --tag $imageRepositoryDevelopment:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
-      --build-arg VERSION=$dockerfileVersion ./sdk"
+      sh "docker build --no-cache \
+        --build-arg DOTNET_VERSION=${dotNetVersion} \
+        --build-arg VERSION=$dockerfileVersion \
+        --tag $imageRepositoryDevelopment:$imageTag \
+        --target development \
+        ."
 
-      sh "docker build --no-cache --tag $imageRepositoryProduction:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
-      --build-arg VERSION=$dockerfileVersion ./runtime"
+      sh "docker build --no-cache \
+        --build-arg DOTNET_VERSION=${dotNetVersion} \
+        --build-arg VERSION=$dockerfileVersion \
+        --tag $imageRepositoryProduction:$imageTag \
+        --target production \
+        ."
     }
 
     stage('Push') {
