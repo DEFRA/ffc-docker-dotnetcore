@@ -61,7 +61,7 @@ node {
       // Remove PR image tags from registry after merge to master.
       // Leave digests as these will be reused by master build or cleaned up automatically.
       stage('Clean registry') {
-        withAWS(credentials: awsCredential, region: 'eu-west-2') {
+        withAWS(credentials: awsCredential, region: awsRegion) {
           sh """
             aws --region $awsRegion \
               ecr batch-delete-image \
