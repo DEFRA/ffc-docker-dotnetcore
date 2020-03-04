@@ -3,7 +3,7 @@ import uk.gov.defra.ffc.DefraUtils
 def defraUtils = new DefraUtils()
 
 // Versioning - edit these variables to set version information
-def dockerfileVersion = '1.0.0'
+def dockerfileVersion = '1.0.1'
 def dotNetVersion = '12.16.0'
 
 // Constants
@@ -35,11 +35,19 @@ node {
     }
 
     stage('Build') {
-      sh "docker build --no-cache --tag $imageRepositoryDevelopment:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
-      --build-arg VERSION=$dockerfileVersion ./sdk"
+      sh "docker build --no-cache \
+        --build-arg DOTNET_VERSION=${dotNetVersion} \
+        --build-arg VERSION=$dockerfileVersion \
+        --tag $imageRepositoryDevelopment:$imageTag \
+        --target development \
+        ."
 
-      sh "docker build --no-cache --tag $imageRepositoryProduction:$imageTag --build-arg DOTNET_VERSION=${dotNetVersion} \
-      --build-arg VERSION=$dockerfileVersion ./runtime"
+      sh "docker build --no-cache \
+        --build-arg DOTNET_VERSION=${dotNetVersion} \
+        --build-arg VERSION=$dockerfileVersion \
+        --tag $imageRepositoryProduction:$imageTag \
+        --target production \
+        ."
     }
 
     stage('Push') {
@@ -53,7 +61,7 @@ node {
       // Remove PR image tags from registry after merge to master.
       // Leave digests as these will be reused by master build or cleaned up automatically.
       stage('Clean registry') {
-        withAWS(credentials: awsCredential, region: 'eu-west-2') {
+        withAWS(credentials: awsCredential, region: awsRegion) {
           sh """
             aws --region $awsRegion \
               ecr batch-delete-image \

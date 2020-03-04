@@ -3,14 +3,13 @@ ARG PARENT_VERSION=1.0.0
 ARG PARENT_REGISTRY=562955126301.dkr.ecr.eu-west-2.amazonaws.com
 
 # Development stage, used the build the app and provide testing tools
-FROM $PARENT_REGISTRY/ffc-dotnet-sdk:$PARENT_VERSION AS development
+FROM $PARENT_REGISTRY/ffc-dotnetcore-development:$PARENT_VERSION AS development
 
 ARG PARENT_VERSION
 ARG PARENT_REGISTRY
-ARG PORT=3007
 
 # Label the development image with the parent image it extends
-LABEL uk.gov.defra.ffc.parent-image=${PARENT_REGISTRY}/ffc-node-development:${PARENT_VERSION}
+LABEL uk.gov.defra.ffc.parent-image=${PARENT_REGISTRY}/ffc-dotnetcore-development:${PARENT_VERSION}
 
 # Create directories for app and test files to be copied into
 RUN mkdir -p /home/dotnet/exampleService/ /home/dotnet/exampleService.Tests/
@@ -30,25 +29,32 @@ COPY --chown=dotnet:dotnet ./exampleService/ ./exampleService/
 # Build the app
 RUN dotnet publish ./exampleService/ -c Release -o /home/dotnet/out
 
-# Set the default command for the development image to run a file watcher
-CMD [ "watch", "--project", "./exampleService", "run", "--urls", "http://*:${PORT}" ]
+# Expose the app on a defined port, configurable via a build argument
+ARG PORT=3007
+ENV PORT ${PORT}
+EXPOSE ${PORT}
+
+# Set the default command for development to run a file watcher.
+# Use shell form so environment variables are interpreted.
+CMD dotnet watch --project ./exampleService run --urls http://*:${PORT}
 
 # Production stage
-FROM $PARENT_REGISTRY/ffc-dotnet-runtime:$PARENT_VERSION AS production
+FROM $PARENT_REGISTRY/ffc-dotnetcore:$PARENT_VERSION AS production
 
 ARG PARENT_VERSION
 ARG PARENT_REGISTRY
-ARG PORT=3007
 
 # Label the production image with the parent image it extends
-LABEL uk.gov.defra.ffc.parent-image=${PARENT_REGISTRY}/ffc-node-development:${PARENT_VERSION}
+LABEL uk.gov.defra.ffc.parent-image=${PARENT_REGISTRY}/ffc-dotnetcore-development:${PARENT_VERSION}
 
-# Expose the app on a fixed port
+# Expose the app on a defined port, configurable via a build argument
+ARG PORT=3007
 ENV ASPNETCORE_URLS=http://*:${PORT}
 EXPOSE ${PORT}
 
 # Copy the compiled app from the development build stage
 COPY --from=development /home/dotnet/out/ ./
 
-# Set the default command for the production image to run the compiled application
-CMD [ "exampleService.dll" ]
+# Set the default command for production to run the compiled app.
+# Use shell form so environment variables are interpreted.
+CMD dotnet exampleService.dll

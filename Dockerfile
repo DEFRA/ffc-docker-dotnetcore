@@ -1,10 +1,22 @@
-# Allow .Net Core version to be set at build time
+# Set default values for build arguments
 ARG NETCORE_VERSION=3.1
 
-# Extend Alpine variant of .Net Core SDK base image for small image size
-FROM mcr.microsoft.com/dotnet/core/sdk:${NETCORE_VERSION}-alpine
+# Extend Alpine variant of ASP.net base image for small image size
+FROM mcr.microsoft.com/dotnet/core/aspnet:${NETCORE_VERSION}-alpine AS production
 
-# Default the SDK image to run as development
+ENV ASPNETCORE_ENVIRONMENT=production
+
+# Create a dotnet user to run as
+RUN addgroup -g 1000 dotnet \
+    && adduser -u 1000 -G dotnet -s /bin/sh -D dotnet
+
+# Default to the dotnet user and run from their home folder
+USER dotnet
+WORKDIR /home/dotnet
+
+# Extend Alpine variant of .Net Core SDK base image for small image size
+FROM mcr.microsoft.com/dotnet/core/sdk:${NETCORE_VERSION}-alpine AS development
+
 ENV ASPNETCORE_ENVIRONMENT=development
 
 # Create a dotnet user to run as
@@ -19,7 +31,3 @@ RUN apk update \
 # Default to the dotnet user and run from their home folder
 USER dotnet
 WORKDIR /home/dotnet
-
-# Default to running the base dotnet command. Specify subcommands using
-# `CMD` in child Dockerfiles or `command` in docker-compose.yaml.
-ENTRYPOINT [ "dotnet" ]
