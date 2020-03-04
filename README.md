@@ -5,7 +5,7 @@ This repository contains .Net Core parent Docker image source code for the Futur
 Two parent images are created from this repository:
 
 - `ffc-dotnetcore`
-- `ffc-dotnetcore-develpment`
+- `ffc-dotnetcore-development`
 
 It is recommended that services use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build) to produce production and development images, each extending the appropriate parent, from a single Dockerfile.
 
